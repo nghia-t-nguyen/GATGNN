@@ -6,12 +6,12 @@ from gatgnn.utils                  import *
 
 # MOST CRUCIAL DATA PARAMETERS
 parser = argparse.ArgumentParser(description='GATGNN')
-parser.add_argument('--property', default='bulk-modulus',
+parser.add_argument('--property', default='new-property',
                     choices=['absolute-energy','band-gap','bulk-modulus',
                              'fermi-energy','formation-energy',
                              'poisson-ratio','shear-modulus','new-property'],
                     help='material property to train (default: bulk-modulus)')
-parser.add_argument('--data_src', default='CGCNN',choices=['CGCNN','MEGNET','NEW'],
+parser.add_argument('--data_src', default='POSCAR',choices=['CGCNN','MEGNET','NEW'],
                     help='selection of the materials dataset to use (default: CGCNN)')
 
 # MOST CRUCIAL MODEL PARAMETERS
@@ -68,8 +68,18 @@ train_param     = {'batch_size':batch_size, 'shuffle': True}
 valid_param     = {'batch_size':256, 'shuffle': True}
 
 # DATALOADER/ TARGET NORMALIZATION
-src_CIF         = 'CIF-DATA_NEW' if data_src == 'NEW' else 'CIF-DATA'
-dataset         = pd.read_csv(f'DATA/{src_CIF}/id_prop.csv',names=['material_ids','label']).sample(frac=1,random_state=random_num)
+
+#src_CIF         = 'CIF-DATA_NEW' if data_src == 'NEW' else 'CIF-DATA'
+src_CIF = 'POSCAR-data'
+# TODO: read our csv file, drop formula column
+#dataset         = pd.read_csv(f'DATA/{src_CIF}/id_prop.csv').sample(frac=1,random_state=random_num)
+
+dataset         = pd.read_csv(f'DATA/{src_CIF}/id_prop.csv')
+print(f'DATA/{src_CIF}/id_prop.csv')
+print(dataset)
+#exit(-1)
+
+#remove normlization
 NORMALIZER      = DATA_normalizer(dataset.label.values)
 
 CRYSTAL_DATA    = CIF_Dataset(dataset, root_dir = f'DATA/{src_CIF}/',**RSM)

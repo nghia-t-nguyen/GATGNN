@@ -201,8 +201,9 @@ class GATGNN(torch.nn.Module):
             self.linear1    = nn.Linear(reg_h,reg_h)
             self.linear2    = nn.Linear(reg_h,reg_h)
 
-        if self.classification :    self.out  =  Linear(reg_h,2)
-        else:                       self.out  =  Linear(reg_h,1)
+        #if self.classification :    self.out  =  Linear(reg_h,2)
+        #else:                       self.out  =  Linear(reg_h,1)
+        self.out = Linear(reg_h,96*3)
 
     def forward(self,data):
         x, edge_index, edge_attr   = data.x, data.edge_index,data.edge_attr
@@ -234,4 +235,7 @@ class GATGNN(torch.nn.Module):
 
         if self.classification: y = self.out(y)
         else:                   y = self.out(y).squeeze()
+
+        #check dimension of y. tomake sure it is 96*3 dimension.
+        #ask Steph
         return y

@@ -14,7 +14,7 @@ def use_property(property_name,source, do_prediction = False):
     elif property_name in ['shear','shearmodulus','shear-modulus','shear-moduli']:filename = 'shearmodulus.csv';p=4;num_T  = 4664
     elif property_name in ['poisson','poissonratio','poisson-ratio']:         filename = 'poissonratio.csv'    ;p=4;num_T  = 4664
     elif property_name in ['is_metal','is_not_metal']:                        filename = 'ismetal.csv'         ;p=2;num_T  = 55391
-    elif property_name == 'new-property'             :                        filename = 'newproperty.csv'     ;p=None;num_T  = None
+    elif property_name == 'new-property'             :                        filename = 'vibrationfrequency.csv'     ;p=None;num_T  = None
 
     df     = pd.read_csv(f'DATA/properties-reference/{filename}',names=['material_id','value']).replace(to_replace='None',value=np.nan).dropna()
 
@@ -52,12 +52,19 @@ def use_property(property_name,source, do_prediction = False):
         src, dst = d_src+'/CIF-DATA/atom_init.json',d_src+'/CIF-DATA_NEW/atom_init.json'
         copyfile(src, dst)
 
+    elif source == "POSCAR":
+        cif_dir  = 'POSCAR-data'
+        CIF_dict = {'radius':8,'step':0.2,'max_num_nbr':12}
+        d_src    = 'DATA'
+        src, dst = d_src+'/CIF-DATA/atom_init.json',d_src+'/POSCAR-data/atom_init.json'
+        copyfile(src, dst)
+
 
     # ADDITIONAL CLEANING
     if p in [3,4]:
         df        = df[df.value>0]
 
 
-    df.to_csv(f'DATA/{cif_dir}/id_prop.csv',index=False,header=False)
+    #df.to_csv(f'DATA/{cif_dir}/id_prop.csv',index=False,header=False)
     if not do_prediction:    print(f'> Dataset for {source}---{property_name} ready !\n\n')
     return source,num_T,CIF_dict

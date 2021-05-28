@@ -11,6 +11,7 @@ from pymatgen.core.structure import Structure
 from sklearn.cluster import KMeans
 from sklearn.cluster import SpectralClustering as SPCL
 import warnings
+from pymatgen.io.vasp import Poscar
 
 if not sys.warnoptions:
     warnings.simplefilter("ignore")
@@ -253,7 +254,15 @@ class CIF_Dataset(Dataset):
     @functools.lru_cache(maxsize=None)  # Cache loaded structures
     def __getitem__(self, idx):
         cif_id, target = self.full_data.iloc[idx]
-        crystal = Structure.from_file(os.path.join(self.root_dir, cif_id+'.cif'))
+        print('data.py:',target)
+        #replace with staticfrom_string... see documentation in telegram
+        pscarreader=Poscar()
+        pscarreader.from_string(self.root_dir,cif_id+'/POSCAR')
+        crystal = pscarreader.structure
+
+        #crystal = Structure.from_file(os.path.join(self.root_dir, cif_id+'.cif')) # +'/Poscar'
+
+
         atom_fea = np.vstack([self.ari.get_atom_fea(crystal[i].specie.number) for i in range(len(crystal))])
         atom_fea = torch.Tensor(atom_fea)
         all_nbrs = crystal.get_all_neighbors(self.radius, include_index=True)
